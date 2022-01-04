@@ -48,7 +48,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User successfully registered',
-            'user' => $user
+            //'user' => $user
         ], 201);
     }
 
@@ -74,9 +74,8 @@ class UserController extends Controller
 
         $cookie = cookie('jwt', $token, 60 * 24);
         return response()->json([
-            'token' => $token,
-            'message' => 'Success',
-
+            'access_token' => $token,
+            'message' => 'login Success',
             'token_type' => 'bearer',
         ])->withCookie($cookie);
 
@@ -95,16 +94,6 @@ class UserController extends Controller
         return response()->json(['message' => 'User successfully logged out.']);
     }
 
-    // /**
-    //  * Refresh token.
-    //  *
-    //  * @return \Illuminate\Http\JsonResponse
-    //  */
-    // public function refresh()
-    // {
-    //     return $this->respondWithToken(auth()->refresh());
-    // }
-
     /**
      * Get user profile.
      *
@@ -114,22 +103,4 @@ class UserController extends Controller
     {
         return response()->json(auth()->user());
     }
-
-    // /**
-    //  * Get the token array structure.
-    //  *
-    //  * @param  string $token
-    //  *
-    //  * @return \Illuminate\Http\JsonResponse
-    //  */
-    // protected function respondWithToken($token)
-    // {
-    //     $cookie = cookie('jwt', $token, 60 * 24);
-    //     return response()->json([
-    //         'message' => 'Success',
-    //         // 'access_token' => $token,
-    //         'token_type' => 'bearer',
-    //         //'expires_in' => auth()->factory()->getTTL() * 60
-    //     ])->withCookie($cookie);
-    // }
 }
