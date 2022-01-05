@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\PasswordReset;
 use App\Http\Requests\SendEmailRequest;
 use Illuminate\Support\Facades\Log;
-use Exception;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ForgotPasswordController extends Controller
 {
@@ -32,22 +30,14 @@ class ForgotPasswordController extends Controller
 
         if (!$user)
         {
-            //Log::error('Email not found.', ['id' => $request->email]);
             return response()->json([ 'message' => 'we can not find a user with that email address'],404);
         }
 
-        $passwordReset = PasswordReset::updateOrCreate(
-            ['email' => $user->email],
-            [
-                'email' => $user->email,
-                'token' => JWTAuth::fromUser($user)
-            ]
-        );
-
-        if ($user && $passwordReset)
+        $token = Auth::fromUser($user);
+        if ($user)
         {
             $sendEmail = new SendEmailRequest();
-            $sendEmail->sendEmail($user->email,$passwordReset->token);
+            $sendEmail->sendEmail($user,$token);
         }
 
         Log::info('Forgot PassWord Link : '.'Email Id :'.$request->email );
@@ -59,8 +49,6 @@ class ForgotPasswordController extends Controller
      * if validation fails returns failure resonse and if it passes it checks with DB whether the token
      * is there or not if not returns a failure response and checks the user email also if everything is
      * good resets the password successfully.
-     *
-     *
      */
     public function resetPassword(Request $request)
     {
@@ -76,15 +64,14 @@ class ForgotPasswordController extends Controller
                 ],400);
         }
 
-        $passwordReset = PasswordReset::where('token', $request->token)->first();
-
+        $passwordReset = Auth::user();
 
         if (!$passwordReset)
         {
             return response()->json(['message' => 'This token is invalid'],401);
         }
 
-        $user = User::where('email', $passwordReset->email)->first();
+        $user = User::where('email', 'afrozsatvilkar2016@gmail.com')->first();
 
         if (!$user)
         {
@@ -97,9 +84,6 @@ class ForgotPasswordController extends Controller
         {
             $user->password = bcrypt($request->new_password);
             $user->save();
-            $passwordReset->delete();
-            Log::info('Reset Successful : '.'Email Id :'.$request->email );
-
             return response()->json([
                 'status' => 201,
                 'message' => 'Password reset successfull!'
