@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\SendEmailRequest;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
 class UserController extends Controller
 {
     /**
@@ -39,7 +40,7 @@ class UserController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $user = User::create([
+        User::create([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
@@ -47,10 +48,8 @@ class UserController extends Controller
             ]);
 
         return response()->json([
+            'status' => 201,
             'message' => 'User successfully registered',
-            'firstname' => $user->firstname,
-            'lastname' => $user->lastname,
-            'email' => $user->email,
         ], 201);
     }
 
@@ -71,15 +70,16 @@ class UserController extends Controller
         }
 
         if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'error' => 'Unauthorized'
+            ], 401);
         }
 
-        // $cookie = cookie('jwt', $token, 60 * 24);
         return response()->json([
             'access_token' => $token,
             'message' => 'login Success',
             'token_type' => 'bearer',
-        ]);
+        ],201);
 
 
     }
@@ -93,7 +93,10 @@ class UserController extends Controller
     {
         auth()->logout();
 
-        return response()->json(['message' => 'User successfully logged out.']);
+        return response()->json([
+            'status' => 201,
+            'message' => 'User successfully logged out.'
+        ],201);
     }
 
     /**
@@ -106,10 +109,19 @@ class UserController extends Controller
         return response()->json(auth()->user());
     }
 
+     /**
+     * This API Takes the request which is the email id and validates it and check where that email id
+     * is present in DB or not if it is not,it returns failure with the appropriate response code and
+     * checks for password reset model once the email is valid and by creating an object of the
+     * sendEmail function which is there in App\Http\Requests\SendEmailRequest and calling the function
+     * by passing args and successfully sending the password reset link to the specified email id.
+     *
+     * @return success reponse about reset link.
+     */
     public function forgotPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email' => 'required|string|email|max:100',
         ]);
 
         if($validator->fails()) {
@@ -121,6 +133,7 @@ class UserController extends Controller
         if (!$user)
         {
             return response()->json([
+                'status'=> 404,
                 'message' => 'we can not find a user with that email address'
             ],404);
         }
@@ -129,14 +142,21 @@ class UserController extends Controller
         if ($user)
         {
             $sendEmail = new SendEmailRequest();
-            $sendEmail->sendEmail($user->email,$token);
+            $sendEmail->sendEmail($user,$token);
         }
 
         return response()->json([
+            'status' => 200,
             'message' => 'we have mailed your password reset link to respective E-mail'
         ],200);
     }
 
+    /**
+     * This API Takes the request which has new password and confirm password and validates both of them
+     * if validation fails returns failure resonse and if it passes it checks with DB whether the token
+     * is there or not if not returns a failure response and checks the user email also if everything is
+     * good resets the password successfully.
+     */
     public function resetPassword(Request $request)
     {
         $validate = Validator::make($request->all(), [
@@ -147,6 +167,7 @@ class UserController extends Controller
         if ($validate->fails())
         {
             return response()->json([
+                'status'=> 400,
                  'message' => "Password doesn't match"
                 ],400);
         }
@@ -155,15 +176,18 @@ class UserController extends Controller
 
         if (!$passwordReset)
         {
-            return response()->json(['message' => 'This token is invalid'],401);
+            return response()->json([
+                'status'=> 401,
+                'message' => 'This token is invalid'
+            ],401);
         }
 
         $user = User::where('email', 'afrozsatvilkar2016@gmail.com')->first();
 
         if (!$user)
         {
-            Log::error('Email not found.', ['id' => $request->email]);
             return response()->json([
+                'status' => 400,
                 'message' => "we can't find the user with that e-mail address"
             ], 400);
         }

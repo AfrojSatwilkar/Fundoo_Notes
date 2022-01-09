@@ -11,9 +11,11 @@ Route::group(['middleware' => 'api'], function() {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
 
-    Route::post('forgotpassword', [ForgotPasswordController::class, 'forgotPassword']);
+    Route::post('forgotpassword', [UserController::class, 'forgotPassword']);
     Route::post('resetpassword', [UserController::class, 'resetPassword']);
 
     Route::post('createnote', [NoteController::class, 'createNote']);
-    // Route::get('displaynote', [NoteController::class, 'displayNoteById']);
+    Route::get('readnote', [NoteController::class, 'readAllNotes']);
+    Route::post('editnote', [NoteController::class, 'editNote']);
+    Route::post('deletenote', [NoteController::class, 'deleteNote']);
 });

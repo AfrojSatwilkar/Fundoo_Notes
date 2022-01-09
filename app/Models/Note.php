@@ -20,9 +20,4 @@ class Note extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    // public function label()
-    // {
-    //     return $this->belongsTo(Label::class);
-    // }
 }

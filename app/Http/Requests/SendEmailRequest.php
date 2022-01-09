@@ -6,7 +6,7 @@ use PHPMailer\PHPMailer\Exception;
 
 
 /**
- * @since 24-sep-2021
+ * @since 2-jan-2022
  *
  * This class is respnsible for sending the message to the given email id and token.
  */
@@ -16,7 +16,7 @@ class SendEmailRequest
      /**
      * @param $email,$token
      *
-     * This function takes two args from the function in ForgotPasswordcontroller and successfully
+     * This function takes two args from the function in UserContoller and successfully
      * sends the token as a reset link to the user email id.
      */
     public function sendEmail($user,$token)
