@@ -79,6 +79,7 @@ class NoteController extends Controller
         }
 
         return response()->json([
+            'message' => 'Fetched Notes Successfully',
             'Notes' => $notes
         ], 201);
     }

@@ -1,5 +1,7 @@
 <?php
 
+use Darkaonline\L5Swagger\L5SwaggerServiceProvider;
+
 return [
 
     /*
@@ -232,6 +234,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        L5Swagger\L5SwaggerServiceProvider::class,
 
     ],
 

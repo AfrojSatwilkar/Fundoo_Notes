@@ -40,7 +40,6 @@ class SendEmailRequest
             $mail->Subject = env('MAIL_SUBJECT');
             $mail->Body = $data;
             $dt = $mail->send();
-            sleep(3);
 
            if($dt)
                 return true;
