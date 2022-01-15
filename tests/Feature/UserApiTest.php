@@ -16,7 +16,7 @@ class UserApiTest extends TestCase
         ])->json('POST', '/api/register', [
             "firstname" => "afroj",
             "lastname" => "satwilkar",
-            "email" => "aj@gmail.com",
+            "email" => "abcdefg@gmail.com",
             "password" => "afroj786",
             "confirm_password" => "afroj786"
         ]);

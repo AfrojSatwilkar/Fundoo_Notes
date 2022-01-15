@@ -25,4 +25,6 @@ Route::group(['middleware' => 'api'], function() {
     Route::post('updatelabel', [LabelController::class, 'updateLabel']);
     Route::post('deletelabel', [LabelController::class, 'deleteLabel']);
     Route::post('addnotelabel', [LabelController::class, 'addNoteLabel']);
+    Route::post('/deletenotelabel', [LabelController::class, 'deleteNoteLabel']);
+
 });

@@ -19,5 +19,13 @@ class LabelNotes extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function
+    public function label()
+    {
+        return $this->belongsTo(Label::class);
+    }
+
+    public function note()
+    {
+        return $this->belongsTo(Note::class);
+    }
 }

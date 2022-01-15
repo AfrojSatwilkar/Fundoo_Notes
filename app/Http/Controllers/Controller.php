@@ -8,15 +8,15 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
 /**
- * @SWG\Swagger(
+ * @OA\Swagger(
  *   basePath="",
  *   schemes= {"http", "https"},
  *   host = L5_SWAGGER_CONST_HOST,
- *   @QA\Info(
- *     version="3.0",
+ *   @OA\Info(
+ *     version="1.0.0",
  *     title="Swagger Integration with PHP Laravel",
  *     description="Integrate Swagger in Laravel application",
- *   @SWG\Contact(
+ *   @OA\Contact(
  *          email="afrozsatvilkar2014@gmail.com"
  *     ),
  *   )

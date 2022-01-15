@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use App\Models\Note;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @since 04-jan-2022
@@ -41,12 +42,14 @@ class NoteController extends Controller
             $note->user_id = Auth::user()->id;
             $note->save();
         } catch (Exception $e) {
+            Log::error('Invalid User');
             return response()->json([
                 'status' => 404,
                 'message' => 'Invalid authorization token'
             ], 404);
         }
 
+        Log::info('notes created',['user_id'=>$note->user_id]);
         return response()->json([
             'status' => 201,
             'message' => 'notes created successfully'
@@ -64,13 +67,14 @@ class NoteController extends Controller
     {
         $user = Auth::user();
         if (!$user) {
+            Log::error('Invalid User');
             return response()->json([
                 'status' => 404,
                 'message' => 'Invalid authorization token'
             ], 404);
         }
 
-        $notes = Note::where('user_id', Auth::user()->id)->get();
+        $notes = Note::with('label')->where('user_id', Auth::user()->id)->get();
         if (!$notes) {
             return response()->json([
                 'status' => 404,
@@ -103,6 +107,7 @@ class NoteController extends Controller
 
         $user = Auth::user();
         if (!$user) {
+            Log::error('Invalid User');
             return response()->json([
                 'status' => 404,
                 'message' => 'Invalid authorization token'
@@ -123,6 +128,7 @@ class NoteController extends Controller
             'description' => $request->description,
         ]);
 
+        Log::info('Note updated',['user_id' => $user->id]);
         return response()->json([
             'status' => 201,
             'message' => "Note successfully updated"
@@ -148,6 +154,7 @@ class NoteController extends Controller
 
         $user = Auth::user();
         if (!$user) {
+            Log::error('Invalid User');
             return response()->json([
                 'status' => 404,
                 'message' => 'Invalid authorization token'
@@ -156,6 +163,7 @@ class NoteController extends Controller
 
         $notes = Note::where('id', $request->id)->first();
         if (!($notes->user_id == $user->id) || !$notes) {
+            Log::error('Notes Not Found',['id'=>$request->id]);
             return response()->json([
                 'status' => 404,
                 'message' => 'Notes not found'
@@ -163,6 +171,7 @@ class NoteController extends Controller
         }
 
         $notes->delete($notes->id);
+        Log::info('notes deleted',['user_id'=>$user->id,'note_id'=>$request->id]);
         return response()->json([
             'status' => 201,
             'message' => 'Note successfully deleted'

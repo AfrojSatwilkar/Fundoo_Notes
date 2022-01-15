@@ -23,6 +23,6 @@ class Note extends Model
 
     public function label()
     {
-        return $this->belongsTo(Label::class);
+        return $this->hasMany(Label::class);
     }
 }
