@@ -146,6 +146,12 @@ return [
         */
         'securityDefinitions' => [
             'securitySchemes' => [
+                'Bearer' => [
+                    'type' => 'http',
+                    'description' => 'Laravel bearer token authentication',
+                    'scheme' => 'bearer',
+                    'bearerFormat' => 'JWT'
+                ],
                 /*
                  * Examples of Security schemes
                 */

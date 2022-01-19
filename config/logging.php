@@ -64,7 +64,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'days' => 1,
         ],
 
         'slack' => [
@@ -113,6 +113,12 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'customLog' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/customLog.log'),
+            'level' => 'debug'
+        ]
     ],
 
 ];
