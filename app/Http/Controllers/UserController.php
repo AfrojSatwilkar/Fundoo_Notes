@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-
-
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Http\Requests\SendEmailRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -82,9 +79,9 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        Log::info('Registered user Email : ' . 'Email Id :' . $request->email);
+        Log::channel('customLog')->info('Registered user Email : ' . 'Email Id :' . $request->email);
 
-        $value = Cache::remember('users', 1, function () {
+        Cache::remember('users', 1, function () {
             return DB::table('users')->get();
         });
 
@@ -95,7 +92,6 @@ class UserController extends Controller
     }
 
     /**
-
      * @OA\Post(
      *   path="/api/login",
      *   summary="login",
@@ -132,13 +128,8 @@ class UserController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $value = Cache::remember('users', 1, function() {
-            return DB::table('users')->get();
-        });
-
-
         if (!$token = auth()->attempt($validator->validated())) {
-            Log::error('User failed to login.', ['Email id' => $request->email]);
+            Log::channel('customLog')->error('User failed to login.', ['Email id' => $request->email]);
             return response()->json([
                 'error' => 'we can not find the user with that e-mail address You need to register first'
             ], 401);
@@ -148,7 +139,6 @@ class UserController extends Controller
         return response()->json([
             'access_token' => $token,
             'message' => 'login Success',
-            'token_type' => 'bearer',
         ], 201);
     }
 

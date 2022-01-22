@@ -6,10 +6,10 @@ use Exception;
 
 class FundooNoteException extends Exception
 {
-    public function message($status)
+    public function message()
     {
         return response()->json([
-            'status' => $status,
+            'status' => $this->getCode(),
             'message' => $this->getMessage()
         ]);
     }

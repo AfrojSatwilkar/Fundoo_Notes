@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Label;
 use App\Models\LabelNotes;
+use App\Models\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -111,7 +114,17 @@ class LabelController extends Controller
             ], 404);
         }
 
-        $label = Label::where('user_id', $user->id)->get();
+        $label = Cache::remember('labels', 60*60*24, function() {
+            return Label::where('user_id', Auth::user()->id)->get();
+        });
+
+        //$label = Cache::get('labels');
+        // Cache::forget('labels' . Auth::user()->id);
+        // $label = Cache::get('labels' . Auth::user()->id, function () {
+        //     return Label::where('user_id', Auth::user()->id)->get();
+        // });
+
+        //$label = Label::where('user_id', $user->id)->get();
         if (!$label) {
             return response()->json([
                 'status' => 404,
@@ -187,6 +200,8 @@ class LabelController extends Controller
             'labelname' => $request->labelname,
         ]);
 
+        Cache::forget('labels');
+        Cache::forget('notes');
         return response()->json([
             'status' => 201,
             'message' => "Label updated Sucessfully"
@@ -248,6 +263,8 @@ class LabelController extends Controller
         }
 
         $labels->delete($labels->id);
+        Cache::forget('labels');
+        Cache::forget('notes');
         return response()->json([
             'status' => 201,
             'message' => 'Label successfully deleted'
@@ -308,6 +325,7 @@ class LabelController extends Controller
             $labelnotes->label_id = $request->label_id;
             $labelnotes->note_id = $request->note_id;
             if ($user->label_notes()->save($labelnotes)) {
+                Cache::forget('notes');
                 return response()->json([
                     'message' => 'Label note added Sucessfully',
                 ], 201);
@@ -371,6 +389,7 @@ class LabelController extends Controller
             }
 
             $labelnote->delete($labelnote->id);
+            Cache::forget('notes');
             return response()->json([
                 'status' => 201,
                 'message' => 'Label successfully deleted'
