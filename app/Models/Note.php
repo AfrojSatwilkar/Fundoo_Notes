@@ -15,6 +15,9 @@ class Note extends Model
         'description'
     ];
 
+    public function getTitleAttribute($value) {
+        return ucfirst($value);
+    }
 
     public function user()
     {

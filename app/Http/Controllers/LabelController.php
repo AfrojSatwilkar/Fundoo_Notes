@@ -22,7 +22,7 @@ class LabelController extends Controller
 {
     /**
      *   @OA\Post(
-     *   path="/api/createlabel",
+     *   path="/api/label",
      *   summary="create label",
      *   description="create user label",
      *   @OA\RequestBody(
@@ -86,7 +86,7 @@ class LabelController extends Controller
 
     /**
      *   @OA\Get(
-     *   path="/api/readlabel",
+     *   path="/api/label",
      *   summary="read label",
      *   description="read user label",
      *   @OA\RequestBody(
@@ -118,13 +118,6 @@ class LabelController extends Controller
             return Label::where('user_id', Auth::user()->id)->get();
         });
 
-        //$label = Cache::get('labels');
-        // Cache::forget('labels' . Auth::user()->id);
-        // $label = Cache::get('labels' . Auth::user()->id, function () {
-        //     return Label::where('user_id', Auth::user()->id)->get();
-        // });
-
-        //$label = Label::where('user_id', $user->id)->get();
         if (!$label) {
             return response()->json([
                 'status' => 404,
@@ -139,14 +132,14 @@ class LabelController extends Controller
     }
 
     /**
-     *   @OA\Post(
-     *   path="/api/updatelabel",
+     *   @OA\Put(
+     *   path="/api/label",
      *   summary="update label",
      *   description="update user label",
      *   @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
+     *            mediaType="application/x-www-form-urlencoded",
      *            @OA\Schema(
      *               type="object",
      *               required={"id","labelname"},
@@ -209,14 +202,14 @@ class LabelController extends Controller
     }
 
     /**
-     *   @OA\Post(
-     *   path="/api/deletelabel",
+     *   @OA\Delete(
+     *   path="/api/label",
      *   summary="delete label",
      *   description="delete user label",
      *   @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
+     *            mediaType="application/x-www-form-urlencoded",
      *            @OA\Schema(
      *               type="object",
      *               required={"id"},
@@ -273,7 +266,7 @@ class LabelController extends Controller
 
     /**
      *   @OA\Post(
-     *   path="/api/addnotelabel",
+     *   path="/api/notelabel",
      *   summary="add note label",
      *   description="add note label",
      *   @OA\RequestBody(
@@ -339,14 +332,14 @@ class LabelController extends Controller
     }
 
     /**
-     *   @OA\Post(
-     *   path="/api/deletenotelabel",
+     *   @OA\Delete(
+     *   path="/api/notelabel",
      *   summary="delete note label",
      *   description="delete note label",
      *   @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
+     *            mediaType="application/x-www-form-urlencoded",
      *            @OA\Schema(
      *               type="object",
      *               required={"label_id","note_id"},

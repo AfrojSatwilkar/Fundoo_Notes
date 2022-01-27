@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('api/verifyemail/{token}', [UserController::class, 'verifyEmail']);
 
 Route::group(['middleware' => 'api'], function() {
     Route::post('/register', [UserController::class, 'register']);

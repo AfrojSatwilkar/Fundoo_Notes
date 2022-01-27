@@ -96,54 +96,11 @@
                 ]
             }
         },
-        "/api/createlabel": {
-            "post": {
-                "summary": "create label",
-                "description": "create user label",
-                "operationId": "0605a13b036bfd1ed187ac2eff866df1",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "labelname"
-                                ],
-                                "properties": {
-                                    "labelname": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Label added Sucessfully"
-                    },
-                    "401": {
-                        "description": "Label Name already exists"
-                    },
-                    "404": {
-                        "description": "Invalid authorization token"
-                    }
-                },
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/readlabel": {
+        "/api/label": {
             "get": {
                 "summary": "read label",
                 "description": "read user label",
-                "operationId": "cefdf591dd15cd3ec6f641d3f087392b",
+                "operationId": "b026240c0c513738271bdfbb0257bdc8",
                 "requestBody": {},
                 "responses": {
                     "201": {
@@ -161,16 +118,14 @@
                         "Bearer": []
                     }
                 ]
-            }
-        },
-        "/api/updatelabel": {
-            "post": {
+            },
+            "put": {
                 "summary": "update label",
                 "description": "update user label",
-                "operationId": "a50e704dea47a9214be2d7bd86c2f54f",
+                "operationId": "3cb32932ea53c2520e2532b2e16fa1da",
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
                                 "required": [
                                     "id",
@@ -208,16 +163,55 @@
                         "Bearer": []
                     }
                 ]
-            }
-        },
-        "/api/deletelabel": {
+            },
             "post": {
-                "summary": "delete label",
-                "description": "delete user label",
-                "operationId": "90674122f0d8b20b85da3e0b370c913c",
+                "summary": "create label",
+                "description": "create user label",
+                "operationId": "4630b7a98d31fc6d438dfc071b1b24a6",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "labelname"
+                                ],
+                                "properties": {
+                                    "labelname": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Label added Sucessfully"
+                    },
+                    "401": {
+                        "description": "Label Name already exists"
+                    },
+                    "404": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "delete": {
+                "summary": "delete label",
+                "description": "delete user label",
+                "operationId": "d84d55c64cd7aa7415520b938794b859",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
                                 "required": [
                                     "id"
@@ -253,11 +247,11 @@
                 ]
             }
         },
-        "/api/addnotelabel": {
+        "/api/notelabel": {
             "post": {
                 "summary": "add note label",
                 "description": "add note label",
-                "operationId": "addef3e64b76e1470cf32beca0cd2122",
+                "operationId": "90a1cfe7bb23f424030a61a17d72701a",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -298,16 +292,14 @@
                         "Bearer": []
                     }
                 ]
-            }
-        },
-        "/api/deletenotelabel": {
-            "post": {
+            },
+            "delete": {
                 "summary": "delete note label",
                 "description": "delete note label",
-                "operationId": "efd129bfd2b9b842384a48da8cb8bc54",
+                "operationId": "a87db1177a18a48e9b308e3e1ef0c733",
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
                                 "required": [
                                     "label_id",
@@ -349,11 +341,77 @@
                 ]
             }
         },
-        "/api/createnote": {
+        "/api/note": {
+            "get": {
+                "summary": "read note",
+                "description": "user read note",
+                "operationId": "6264bda741ce9d8d06ec47c72e4620ee",
+                "requestBody": {},
+                "responses": {
+                    "201": {
+                        "description": "User successfully registered"
+                    },
+                    "401": {
+                        "description": "The email has already been taken"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "summary": "update note",
+                "description": "update user note",
+                "operationId": "3924c14950d0146cf0d5a33164615529",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "title",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "id": {},
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Note successfully updated"
+                    },
+                    "404": {
+                        "description": "Notes not found"
+                    },
+                    "401": {
+                        "description": "Invalid authorization token"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            },
             "post": {
                 "summary": "create note",
                 "description": "create user note",
-                "operationId": "ac1b3ae4b2f77f1b6e72499a395d033a",
+                "operationId": "7f53bf7c2c46cd653b4c54b1b6b26d9f",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -391,88 +449,14 @@
                         "Bearer": []
                     }
                 ]
-            }
-        },
-        "/api/readnote": {
-            "get": {
-                "summary": "read note",
-                "description": "user read note",
-                "operationId": "6c87dcb6e03defe4e22355215b9c0f95",
-                "requestBody": {},
-                "responses": {
-                    "201": {
-                        "description": "User successfully registered"
-                    },
-                    "401": {
-                        "description": "The email has already been taken"
-                    }
-                },
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/editnote": {
-            "post": {
-                "summary": "update note",
-                "description": "update user note",
-                "operationId": "ac5f372d29d13aa118882c1b1cf037e1",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "id",
-                                    "title",
-                                    "description"
-                                ],
-                                "properties": {
-                                    "id": {
-                                        "type": "integer"
-                                    },
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Note successfully updated"
-                    },
-                    "404": {
-                        "description": "Notes not found"
-                    },
-                    "401": {
-                        "description": "Invalid authorization token"
-                    }
-                },
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/deletenote": {
-            "post": {
+            },
+            "delete": {
                 "summary": "delete note",
                 "description": "delete user note",
-                "operationId": "5012882e19f6d92301457149ee10f6a2",
+                "operationId": "3e12cb09171633cd26e3dbf970c30761",
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
                                 "required": [
                                     "id"
@@ -638,6 +622,35 @@
                         "Bearer": []
                     }
                 ]
+            }
+        },
+        "/api/verifyemail/{token}": {
+            "get": {
+                "summary": "verify email",
+                "description": "user email verify",
+                "operationId": "1a38ac7b4cc5080891462bc89fce0b61",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "token",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Email is Successfully verified"
+                    },
+                    "202": {
+                        "description": "Email Already verified"
+                    },
+                    "200": {
+                        "description": "Not a Registered Email"
+                    }
+                }
             }
         }
     },

@@ -52,4 +52,38 @@ class SendEmailRequest
             return back()->with('error','Message could not be sent.');
         }
     }
+
+    public function sendVerifyEmail($user)
+    {
+        $data ="Hi,".$user->firstname."<br>Verify email address. <br> http://localhost:8000/api/verifyemail/".$user->verifytoken;
+
+        $mail = new PHPMailer(true);
+
+        try
+        {
+            $mail->isSMTP();
+            $mail->Host       = env('MAIL_HOST');
+            $mail->SMTPAuth   = true;
+            $mail->Username   = env('MAIL_USERNAME');
+            $mail->Password   = env('MAIL_PASSWORD');
+            $mail->SMTPSecure = 'tls';
+            $mail->Port       = 587;
+            $mail->setFrom(env('MAIL_USERNAME'),env('MAIL_FROM_NAME'));
+            $mail->addAddress($user->email);
+            $mail->isHTML(true);
+            $mail->Subject = 'Regarding email verify';
+            $mail->Body = $data;
+            $dt = $mail->send();
+
+           if($dt)
+                return true;
+            else
+                return false;
+
+        }
+        catch (Exception $e)
+        {
+            return back()->with('error','Message could not be sent.');
+        }
+    }
 }

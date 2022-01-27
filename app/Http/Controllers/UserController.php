@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SendEmailRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -20,9 +21,8 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register','verifyEmail']]);
     }
-
 
     /**
      * @OA\Post(
@@ -72,12 +72,18 @@ class UserController extends Controller
             ], 401);
         }
 
-        User::create([
+        $userDetail = User::create([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'verifytoken' => Str::random(60),
         ]);
+
+        if($userDetail) {
+            $sendEmail = new SendEmailRequest();
+            $sendEmail->sendVerifyEmail($userDetail);
+        }
 
         Log::channel('customLog')->info('Registered user Email : ' . 'Email Id :' . $request->email);
 
@@ -128,18 +134,24 @@ class UserController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if (!$token = auth()->attempt($validator->validated())) {
-            Log::channel('customLog')->error('User failed to login.', ['Email id' => $request->email]);
+        if ($token = auth()->attempt($validator->validated())) {
+            $user = Auth::user();
+            if($user->email_verified_at === null) {
+                return  response()->json([
+                    'message' => 'Email Not verified'
+                ],211);
+            }
+            Log::channel('customLog')->info('Login Success : ' . 'Email Id :' . $request->email);
+            return response()->json([
+                'access_token' => $token,
+                'message' => 'login Success',
+            ], 201);
+        }
+
+        Log::channel('customLog')->error('User failed to login.', ['Email id' => $request->email]);
             return response()->json([
                 'error' => 'we can not find the user with that e-mail address You need to register first'
             ], 401);
-        }
-
-        Log::channel('customLog')->info('Login Success : ' . 'Email Id :' . $request->email);
-        return response()->json([
-            'access_token' => $token,
-            'message' => 'login Success',
-        ], 201);
     }
 
     /**
@@ -195,5 +207,43 @@ class UserController extends Controller
     public function profile()
     {
         return response()->json(auth()->user());
+    }
+
+    /**
+     *   @OA\Get(
+     *   path="/api/verifyemail/{token}",
+     *   summary="verify email",
+     *   description="user email verify",
+     *   @OA\Parameter(
+     *         description="token",
+     *         in="path",
+     *         name="token",
+     *         required=true,
+     *         @OA\Schema(
+     *           type="string"
+     *         )
+     *     ),
+     *   @OA\Response(response=201, description="Email is Successfully verified"),
+     *   @OA\Response(response=202, description="Email Already verified"),
+     *   @OA\Response(response=200, description="Not a Registered Email")
+     * )
+     **/
+    public function verifyEmail($token){
+        $user = User::where('verifytoken', $token)->first();
+        if(!$user){
+            return response()->json([
+                'message' => "Not a Registered Email"
+            ], 200);
+        }elseif($user->email_verified_at === null){
+            $user->email_verified_at = now();
+            $user->save();
+            return response()->json([
+                'message' => "Email is Successfully verified"
+            ],201);
+        }else{
+            return response()->json([
+                'message' => "Email Already verified"
+            ],202);
+        }
     }
 }

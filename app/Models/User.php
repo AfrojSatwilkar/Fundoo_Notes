@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'lastname',
         'email',
         'password',
+        'verifytoken',
     ];
 
     /**
@@ -43,6 +44,14 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function setFirstnameAttribute($value) {
+        return $this->attributes['firstname'] = ucfirst($value);
+    }
+
+    public function setLastnameAttribute($value) {
+        return $this->attributes['lastname'] = ucfirst($value);
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.

@@ -147,4 +147,22 @@ class UserApiTest extends TestCase
         ]);
         $response->assertStatus(401)->assertJson(['message' => 'This token is invalid']);
     }
+
+    //verify email success
+    public function test_IfGiven_VerifiedToken_ShouldValidate_AndSuccessStatus()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+        ])->json('GET', '/api/verifyemail/mCV1hbITYOgAbnouGfcPZwMH5L9hPZzUnW1T8FAr5APAsbNbKwHnZNRPCuLn');
+        $response->assertStatus(201)->assertJson(['message' => 'Email is Successfully verified']);
+    }
+
+    //verify email failure
+    public function test_IfGiven_VerifiedToken_ShouldValidate_AndReturnErrorStatus()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+        ])->json('GET', '/api/verifyemail/mCV1hbITYOgAbnouGfcPZwMH5L9hPZzUnW1T8FAr5APAsbNbKwHnZNRPCuLn');
+        $response->assertStatus(202)->assertJson(['message' => 'Email Already verified']);
+    }
 }

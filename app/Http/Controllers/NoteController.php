@@ -24,7 +24,7 @@ class NoteController extends Controller
 {
     /**
      * @OA\Post(
-     *   path="/api/createnote",
+     *   path="/api/note",
      *   summary="create note",
      *   description="create user note",
      *   @OA\RequestBody(
@@ -88,7 +88,7 @@ class NoteController extends Controller
 
     /**
      *  * @OA\Get(
-     *   path="/api/readnote",
+     *   path="/api/note",
      *   summary="read note",
      *   description="user read note",
      *   @OA\RequestBody(
@@ -138,18 +138,18 @@ class NoteController extends Controller
     }
 
     /**
-     *  * @OA\Post(
-     *   path="/api/editnote",
+     *   @OA\Put(
+     *   path="/api/note",
      *   summary="update note",
      *   description="update user note",
      *   @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
+     *            mediaType="application/x-www-form-urlencoded",
      *            @OA\Schema(
      *               type="object",
      *               required={"id","title","description"},
-     *               @OA\Property(property="id", type="integer"),
+     *               @OA\Property(property="id"),
      *               @OA\Property(property="title", type="string"),
      *               @OA\Property(property="description", type="string"),
      *            ),
@@ -212,14 +212,14 @@ class NoteController extends Controller
     }
 
     /**
-     *   @OA\Post(
-     *   path="/api/deletenote",
+     *   @OA\Delete(
+     *   path="/api/note",
      *   summary="delete note",
      *   description="delete user note",
      *   @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
+     *            mediaType="application/x-www-form-urlencoded",
      *            @OA\Schema(
      *               type="object",
      *               required={"id"},
