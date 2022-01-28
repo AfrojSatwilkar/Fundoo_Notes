@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+
+/**
+ * @since 01-jan-2022
+ *
+ * This controller is for user registration, login, logout
+ * and emailverify
+ */
 class UserController extends Controller
 {
     /**
@@ -68,6 +75,7 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
         if ($user) {
             return response()->json([
+                'status' => 401,
                 'message' => 'The email has already been taken'
             ], 401);
         }
@@ -87,13 +95,9 @@ class UserController extends Controller
 
         Log::channel('customLog')->info('Registered user Email : ' . 'Email Id :' . $request->email);
 
-        Cache::remember('users', 1, function () {
-            return DB::table('users')->get();
-        });
-
         return response()->json([
             'status' => 201,
-            'message' => 'User successfully registered',
+            'message' => 'User successfully registered! please check your mail and verify email',
         ], 201);
     }
 
@@ -115,9 +119,7 @@ class UserController extends Controller
      *        ),
      *    ),
      *   @OA\Response(response=201, description="login Success"),
-     *   @OA\Response(
-     *              response=401,
-     *              description="we can not find the user with that e-mail address You need to register first"),
+     *   @OA\Response(response=401, description="we can not find the user with that e-mail address You need to register first"),
      * )
      * login user
      *
@@ -131,16 +133,18 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->errors(), 400);
         }
 
         if ($token = auth()->attempt($validator->validated())) {
             $user = Auth::user();
-            if($user->email_verified_at === null) {
+            if($user->verifyemail === 'inactive') {
                 return  response()->json([
+                    'status' => 211,
                     'message' => 'Email Not verified'
                 ],211);
             }
+
             Log::channel('customLog')->info('Login Success : ' . 'Email Id :' . $request->email);
             return response()->json([
                 'access_token' => $token,
@@ -150,6 +154,7 @@ class UserController extends Controller
 
         Log::channel('customLog')->error('User failed to login.', ['Email id' => $request->email]);
             return response()->json([
+                'status' => 401,
                 'error' => 'we can not find the user with that e-mail address You need to register first'
             ], 401);
     }
@@ -182,7 +187,7 @@ class UserController extends Controller
             ], 201);
         }
         return response()->json([
-            'status' => $user,
+            'status' => 404,
             'message' => 'Invalid authorization token'
         ], 404);
     }
@@ -225,7 +230,7 @@ class UserController extends Controller
      *     ),
      *   @OA\Response(response=201, description="Email is Successfully verified"),
      *   @OA\Response(response=202, description="Email Already verified"),
-     *   @OA\Response(response=200, description="Not a Registered Email")
+     *   @OA\Response(response=404, description="Not a Registered Email")
      * )
      **/
     public function verifyEmail($token){
@@ -233,9 +238,10 @@ class UserController extends Controller
         if(!$user){
             return response()->json([
                 'message' => "Not a Registered Email"
-            ], 200);
-        }elseif($user->email_verified_at === null){
-            $user->email_verified_at = now();
+            ], 404);
+        }elseif($user->verifyemail === 'inactive'){
+            $user->verifyemail = 'active';
+            $user->verifytoken = NULL;
             $user->save();
             return response()->json([
                 'message' => "Email is Successfully verified"
@@ -247,3 +253,4 @@ class UserController extends Controller
         }
     }
 }
+?>

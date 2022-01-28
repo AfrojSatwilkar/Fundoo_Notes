@@ -11,7 +11,6 @@ Route::group(['middleware' => 'api'], function() {
     Route::post('/login', [UserController::class, 'login']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
-    //Route::get('verifyemail/{token}', [UserController::class, 'verifyEmail']);
 
     Route::post('forgotpassword', [ForgotPasswordController::class, 'forgotPassword']);
     Route::post('resetpassword', [ForgotPasswordController::class, 'resetPassword']);

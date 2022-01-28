@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Label;
 use App\Models\LabelNotes;
-use App\Models\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -37,8 +35,8 @@ class LabelController extends Controller
      *        ),
      *    ),
      *   @OA\Response(response=201, description="Label added Sucessfully"),
-     *   @OA\Response(response=401, description="Label Name already exists"),
-     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   @OA\Response(response=404, description="Label Name already exists"),
+     *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
      *       {"Bearer": {}}
      *     }
@@ -73,15 +71,16 @@ class LabelController extends Controller
 
             if ($user->labels()->save($label)) {
                 return response()->json([
+                    'status' => 201,
                     'message' => 'Label added Sucessfully',
                 ], 201);
             }
         }
 
         return response()->json([
-            'status' => 404,
+            'status' => 401,
             'message' => 'Invalid authorization token'
-        ], 404);
+        ], 401);
     }
 
     /**
@@ -93,7 +92,7 @@ class LabelController extends Controller
      *    ),
      *   @OA\Response(response=201, description="Labels Fetched  Successfully"),
      *   @OA\Response(response=401, description="Notes not found"),
-     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
      *       {"Bearer": {}}
      *     }
@@ -148,7 +147,7 @@ class LabelController extends Controller
      *            ),
      *        ),
      *    ),
-     *   @OA\Response(response=201, description="Label updated Sucessfully"),
+     *   @OA\Response(response=200, description="Label updated Sucessfully"),
      *   @OA\Response(response=404, description="Label Name already exists"),
      *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
@@ -196,9 +195,9 @@ class LabelController extends Controller
         Cache::forget('labels');
         Cache::forget('notes');
         return response()->json([
-            'status' => 201,
+            'status' => 200,
             'message' => "Label updated Sucessfully"
-        ], 201);
+        ], 200);
     }
 
     /**
@@ -217,7 +216,7 @@ class LabelController extends Controller
      *            ),
      *        ),
      *    ),
-     *   @OA\Response(response=201, description="Label successfully deleted"),
+     *   @OA\Response(response=200, description="Label successfully deleted"),
      *   @OA\Response(response=404, description="Label Name already exists"),
      *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
@@ -320,6 +319,7 @@ class LabelController extends Controller
             if ($user->label_notes()->save($labelnotes)) {
                 Cache::forget('notes');
                 return response()->json([
+                    'status' => 201,
                     'message' => 'Label note added Sucessfully',
                 ], 201);
             }
@@ -348,7 +348,7 @@ class LabelController extends Controller
      *            ),
      *        ),
      *    ),
-     *   @OA\Response(response=201, description="Label successfully deleted"),
+     *   @OA\Response(response=200, description="Label successfully deleted"),
      *   @OA\Response(response=404, description="Note not found with this label"),
      *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
@@ -386,7 +386,7 @@ class LabelController extends Controller
             return response()->json([
                 'status' => 201,
                 'message' => 'Label successfully deleted'
-            ], 201);
+            ], 200);
         }
 
         return response()->json([
@@ -395,3 +395,4 @@ class LabelController extends Controller
         ], 401);
     }
 }
+?>

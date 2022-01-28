@@ -36,15 +36,6 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
     public function setFirstnameAttribute($value) {
         return $this->attributes['firstname'] = ucfirst($value);
     }

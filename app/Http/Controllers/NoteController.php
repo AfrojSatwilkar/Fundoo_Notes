@@ -3,16 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FundooNoteException;
-use App\Models\Label;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Exception;
 use App\Models\Note;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * @since 04-jan-2022
@@ -61,12 +57,11 @@ class NoteController extends Controller
 
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
-                //throw new FundooNoteException($validator->errors(), 400);
             }
 
             $user = Auth::user();
             if(!$user) {
-                throw new FundooNoteException("Invalid authorization token", 404);
+                throw new FundooNoteException("Invalid authorization token", 401);
             } else {
                 $note = new Note;
                 $note->title = $request->input('title');
@@ -87,7 +82,7 @@ class NoteController extends Controller
     }
 
     /**
-     *  * @OA\Get(
+     *   @OA\Get(
      *   path="/api/note",
      *   summary="read note",
      *   description="user read note",
@@ -111,10 +106,10 @@ class NoteController extends Controller
             $user = Auth::user();
             if (!$user) {
                 Log::error('Invalid User');
-                throw new FundooNoteException("Invalid authorization token", 404);
+                throw new FundooNoteException("Invalid authorization token", 401);
             }
 
-            $notes = Cache::remember('notes', 60*60*24, function() {
+            $notes = Cache::remember('notes', 864000, function() {
                 return Note::leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
                     ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
                     ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
@@ -155,7 +150,7 @@ class NoteController extends Controller
      *            ),
      *        ),
      *    ),
-     *   @OA\Response(response=201, description="Note successfully updated"),
+     *   @OA\Response(response=200, description="Note successfully updated"),
      *   @OA\Response(response=404, description="Notes not found"),
      *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
@@ -182,7 +177,7 @@ class NoteController extends Controller
             $user = Auth::user();
             if (!$user) {
                 Log::channel('customLog')->error('Invalid User');
-                throw new FundooNoteException("Invalid authorization token", 404);
+                throw new FundooNoteException("Invalid authorization token", 401);
             }
 
             $notes = Note::where('user_id', Auth::user()->id)->where('id', $request->id)->first();
@@ -202,9 +197,9 @@ class NoteController extends Controller
             Cache::forget('notes');
             Log::channel('customLog')->info('Note updated', ['user_id' => $user->id]);
             return response()->json([
-                'status' => 201,
+                'status' => 200,
                 'message' => "Note successfully updated"
-            ], 201);
+            ], 200);
         } catch (FundooNoteException $exception) {
             $exception->message();
         }
@@ -227,7 +222,7 @@ class NoteController extends Controller
      *            ),
      *        ),
      *    ),
-     *   @OA\Response(response=201, description="Note successfully deleted"),
+     *   @OA\Response(response=200, description="Note successfully deleted"),
      *   @OA\Response(response=404, description="Notes not found"),
      *   @OA\Response(response=401, description="Invalid authorization token"),
      *   security={
@@ -254,7 +249,7 @@ class NoteController extends Controller
             $user = Auth::user();
             if (!$user) {
                 Log::channel('customLog')->error('Invalid User');
-                throw new FundooNoteException("Invalid authorization token", 404);
+                throw new FundooNoteException("Invalid authorization token", 401);
             }
 
             $notes = Note::where('id', $request->id)->first();
@@ -270,11 +265,12 @@ class NoteController extends Controller
             Cache::forget('notes');
             Log::channel('customLog')->info('notes deleted', ['user_id' => $user->id, 'note_id' => $request->id]);
             return response()->json([
-                'status' => 201,
+                'status' => 200,
                 'message' => 'Note successfully deleted'
-            ], 201);
+            ], 200);
         } catch (FundooNoteException $exception) {
             $exception->message();
         }
     }
 }
+?>

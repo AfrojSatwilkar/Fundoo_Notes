@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class ForgotPasswordController extends Controller
 {
      /**
-      *  * @OA\Post(
+     *  @OA\Post(
      *   path="/api/forgotpassword",
      *   summary="forgot password",
      *   description="forgot user password",
@@ -90,7 +90,7 @@ class ForgotPasswordController extends Controller
      *            ),
      *        ),
      *    ),
-     *   @OA\Response(response=201, description="Password reset successfull!"),
+     *   @OA\Response(response=200, description="Password reset successfull!"),
      *   @OA\Response(response=400, description="we can't find the user with that e-mail address"),
      *   @OA\Response(response=401, description="This token is invalid"),
      *   security={
@@ -113,8 +113,8 @@ class ForgotPasswordController extends Controller
         {
             return response()->json([
                 'status'=> 400,
-                 'message' => "Password doesn't match"
-                ],400);
+                'message' => "Password doesn't match"
+            ],400);
         }
 
         $passwordReset = Auth::user();
@@ -141,9 +141,10 @@ class ForgotPasswordController extends Controller
             $user->password = bcrypt($request->new_password);
             $user->save();
             return response()->json([
-                'status' => 201,
+                'status' => 200,
                 'message' => 'Password reset successfull!'
-            ],201);
+            ],200);
         }
     }
 }
+?>
