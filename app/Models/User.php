@@ -23,7 +23,6 @@ class User extends Authenticatable implements JWTSubject
         'lastname',
         'email',
         'password',
-        'verifytoken',
     ];
 
     /**
@@ -78,4 +77,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany('App\Models\LabelNotes');
     }
+
+    public function collaborators()
+    {
+        return $this->hasMany('App\Models\Collaborator');
+    }
 }
+
+

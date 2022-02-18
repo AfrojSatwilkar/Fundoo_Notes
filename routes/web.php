@@ -22,3 +22,6 @@ Route::get('api/verifyemail/{token}', [UserController::class, 'verifyEmail']);
 Route::group(['middleware' => 'api'], function() {
     Route::post('/register', [UserController::class, 'register']);
 });
+
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

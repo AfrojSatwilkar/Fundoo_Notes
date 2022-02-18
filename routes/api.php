@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\NoteController;
@@ -17,14 +18,19 @@ Route::group(['middleware' => 'api'], function() {
 
     Route::post('note', [NoteController::class, 'createNote']);
     Route::get('note', [NoteController::class, 'readAllNotes']);
-    Route::put('note', [NoteController::class, 'editNote']);
-    Route::delete('note', [NoteController::class, 'deleteNote']);
+    Route::post('updatenote', [NoteController::class, 'editNote']);
+    Route::post('deletenote', [NoteController::class, 'deleteNote']);
+    Route::post('trashnote', [NoteController::class, 'trashNote']);
+    Route::post('restorenote', [NoteController::class, 'untrashNote']);
+    Route::get('gettrashnote', [NoteController::class, 'getTrashNote']);
 
     Route::post('label', [LabelController::class, 'createLabel']);
     Route::get('label', [LabelController::class, 'readAllLabel']);
-    Route::put('label', [LabelController::class, 'updateLabel']);
-    Route::delete('label', [LabelController::class, 'deleteLabel']);
+    Route::post('updatelabel', [LabelController::class, 'updateLabel']);
+    Route::post('deletelabel', [LabelController::class, 'deleteLabel']);
     Route::post('notelabel', [LabelController::class, 'addNoteLabel']);
     Route::delete('notelabel', [LabelController::class, 'deleteNoteLabel']);
+
+    Route::post('addcolab', [CollaboratorController::class, 'addCollaboratorByNoteId']);
 
 });

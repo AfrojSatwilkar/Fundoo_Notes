@@ -79,7 +79,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Password reset successfull!"
                     },
                     "400": {
@@ -99,18 +99,15 @@
         "/api/label": {
             "get": {
                 "summary": "read label",
-                "description": "read user label",
+                "description": "user read label",
                 "operationId": "b026240c0c513738271bdfbb0257bdc8",
                 "requestBody": {},
                 "responses": {
                     "201": {
-                        "description": "Labels Fetched  Successfully"
+                        "description": "User successfully registered"
                     },
                     "401": {
-                        "description": "Notes not found"
-                    },
-                    "404": {
-                        "description": "Invalid authorization token"
+                        "description": "The email has already been taken"
                     }
                 },
                 "security": [
@@ -148,7 +145,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Label updated Sucessfully"
                     },
                     "404": {
@@ -192,10 +189,10 @@
                     "201": {
                         "description": "Label added Sucessfully"
                     },
-                    "401": {
+                    "404": {
                         "description": "Label Name already exists"
                     },
-                    "404": {
+                    "401": {
                         "description": "Invalid authorization token"
                     }
                 },
@@ -230,7 +227,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Label successfully deleted"
                     },
                     "404": {
@@ -324,7 +321,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Label successfully deleted"
                     },
                     "404": {
@@ -392,7 +389,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Note successfully updated"
                     },
                     "404": {
@@ -475,7 +472,7 @@
                     }
                 },
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Note successfully deleted"
                     },
                     "404": {
@@ -647,7 +644,7 @@
                     "202": {
                         "description": "Email Already verified"
                     },
-                    "200": {
+                    "404": {
                         "description": "Not a Registered Email"
                     }
                 }

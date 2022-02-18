@@ -21,7 +21,7 @@ class SendEmailRequest
      */
     public function sendEmail($user,$token)
     {
-        $data ="Hi,".$user->firstname."<br>Your password Reset Link <br>".$token;
+        $data ="Hi,".$user->firstname."<br>Your password Reset Link <br>http://localhost:3000/resetpassword/".$token;
 
         $mail = new PHPMailer(true);
 
@@ -53,9 +53,15 @@ class SendEmailRequest
         }
     }
 
-    public function sendVerifyEmail($user)
+     /**
+     * @param $email,$token
+     *
+     * This function takes two args from the function in UserContoller and successfully
+     * sends the token as a verify email link to the user email id.
+     */
+    public function sendVerifyEmail($user,$token)
     {
-        $data ="Hi,".$user->firstname."<br>Verify email address. <br> http://localhost:8000/api/verifyemail/".$user->verifytoken;
+        $data ="Hi,".$user->firstname."<br>Verify email address. <br> http://localhost:8000/api/verifyemail/".$token;
 
         $mail = new PHPMailer(true);
 
@@ -76,6 +82,43 @@ class SendEmailRequest
             $dt = $mail->send();
 
            if($dt)
+                return true;
+            else
+                return false;
+
+        }
+        catch (Exception $e)
+        {
+            return back()->with('error','Message could not be sent.');
+        }
+    }
+
+    public function sendEmailToCollab($email,$data,$currentUserEmail)
+    {
+        $name = 'Afroj Satwilkar';
+        $email = $email;
+        $subject = 'Note shared with you:';
+        $data = $name. ', '. $currentUserEmail.' shared a Note with you <br>'.$data;
+
+        $mail = new PHPMailer(true);
+
+        try
+        {
+            $mail->isSMTP();
+            $mail->Host       = env('MAIL_HOST');
+            $mail->SMTPAuth   = true;
+            $mail->Username   = env('MAIL_USERNAME');
+            $mail->Password   = env('MAIL_PASSWORD');
+            $mail->SMTPSecure = 'tls';
+            $mail->Port       = 587;
+            $mail->setFrom(env('MAIL_USERNAME'),env('MAIL_FROM_NAME'));
+            $mail->addAddress($email, $name);
+            $mail->isHTML(true);
+            $mail->Subject =  $subject;
+            $mail->Body    = $data;
+            $dt = $mail->send();
+
+            if($dt)
                 return true;
             else
                 return false;

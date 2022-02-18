@@ -83,16 +83,15 @@ class LabelController extends Controller
         ], 401);
     }
 
-    /**
+      /**
      *   @OA\Get(
      *   path="/api/label",
      *   summary="read label",
-     *   description="read user label",
+     *   description="user read label",
      *   @OA\RequestBody(
      *    ),
-     *   @OA\Response(response=201, description="Labels Fetched  Successfully"),
-     *   @OA\Response(response=401, description="Notes not found"),
-     *   @OA\Response(response=401, description="Invalid authorization token"),
+     *   @OA\Response(response=201, description="User successfully registered"),
+     *   @OA\Response(response=401, description="The email has already been taken"),
      *   security={
      *       {"Bearer": {}}
      *     }
@@ -100,7 +99,6 @@ class LabelController extends Controller
      * This function takes access token and finds
      * if there is any label existing on that User id and if so
      * it successfully returns label id
-     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function readAllLabel()
@@ -113,9 +111,11 @@ class LabelController extends Controller
             ], 404);
         }
 
-        $label = Cache::remember('labels', 60*60*24, function() {
-            return Label::where('user_id', Auth::user()->id)->get();
-        });
+        // $label = Cache::remember('labels', 60*60*24, function() {
+        //     return Label::where('user_id', Auth::user()->id)->get();
+        // });
+
+        $label = Label::where('user_id', Auth::user()->id)->get();
 
         if (!$label) {
             return response()->json([
@@ -125,6 +125,7 @@ class LabelController extends Controller
         }
 
         return response()->json([
+            'status' => 201,
             'message' => 'Labels Fetched  Successfully',
             'Label' => $label
         ], 201);
@@ -303,6 +304,7 @@ class LabelController extends Controller
         }
 
         $user = JWTAuth::parseToken()->authenticate();
+        $apy = JWTAuth::getPayload($user)->toArray();
 
         if ($user) {
             $labelnote = LabelNotes::where('note_id', $request->note_id)->where('label_id', $request->label_id)->first();
@@ -319,6 +321,7 @@ class LabelController extends Controller
             if ($user->label_notes()->save($labelnotes)) {
                 Cache::forget('notes');
                 return response()->json([
+                    'aa' => $apy,
                     'status' => 201,
                     'message' => 'Label note added Sucessfully',
                 ], 201);

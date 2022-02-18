@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * @since 01-jan-2022
@@ -23,8 +24,6 @@ class UserController extends Controller
 {
     /**
      * Create a new AuthController instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -69,7 +68,10 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'validation_error' => $validator->errors(),
+            ]);
+
         }
 
         $user = User::where('email', $request->email)->first();
@@ -85,12 +87,12 @@ class UserController extends Controller
             'lastname' => $request->lastname,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'verifytoken' => Str::random(60),
         ]);
 
+        $token = Auth::fromUser($userDetail);
         if($userDetail) {
             $sendEmail = new SendEmailRequest();
-            $sendEmail->sendVerifyEmail($userDetail);
+            $sendEmail->sendVerifyEmail($userDetail,$token);
         }
 
         Log::channel('customLog')->info('Registered user Email : ' . 'Email Id :' . $request->email);
@@ -127,36 +129,50 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $creadintials = $request->only('email', 'password');
+        $validator = Validator::make($creadintials, [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'validation_error' => $validator->errors(),
+             ]);
         }
-
-        if ($token = auth()->attempt($validator->validated())) {
-            $user = Auth::user();
+        $user = User::where('email', $request->email)->first();
+        if (!$user || ! Hash::check($request->password, $user->password)) {
+            Log::channel('customLog')->error('User failed to login.', ['Email id' => $request->email]);
+            return response()->json([
+                'status' => 402,
+                'message' => 'we can not find the user with that e-mail address You need to register first'
+            ]);
+        } else {
             if($user->verifyemail === 'inactive') {
+                $token = Auth::fromUser($user);
+
+                $sendEmail = new SendEmailRequest();
+                $sendEmail->sendVerifyEmail($user,$token);
+
                 return  response()->json([
                     'status' => 211,
                     'message' => 'Email Not verified'
                 ],211);
             }
 
+            // $token = auth()->attempt($validator->validated());
+            // $id = $user->email;
+            $token = JWTAuth::attempt($creadintials);
             Log::channel('customLog')->info('Login Success : ' . 'Email Id :' . $request->email);
             return response()->json([
-                'access_token' => $token,
+                'status' => 201,
+                'token' => $token,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
                 'message' => 'login Success',
             ], 201);
         }
-
-        Log::channel('customLog')->error('User failed to login.', ['Email id' => $request->email]);
-            return response()->json([
-                'status' => 401,
-                'error' => 'we can not find the user with that e-mail address You need to register first'
-            ], 401);
     }
 
     /**
@@ -182,9 +198,9 @@ class UserController extends Controller
 
         if (!$user) {
             return response()->json([
-                'status' => 201,
+                'status' => 200,
                 'message' => 'User successfully logged out.'
-            ], 201);
+            ], 200);
         }
         return response()->json([
             'status' => 404,
@@ -234,14 +250,14 @@ class UserController extends Controller
      * )
      **/
     public function verifyEmail($token){
-        $user = User::where('verifytoken', $token)->first();
+        $user = JWTAuth::parseToken()->authenticate($token);
+        $user = User::where('email', $user->email)->first();
         if(!$user){
             return response()->json([
                 'message' => "Not a Registered Email"
             ], 404);
         }elseif($user->verifyemail === 'inactive'){
             $user->verifyemail = 'active';
-            $user->verifytoken = NULL;
             $user->save();
             return response()->json([
                 'message' => "Email is Successfully verified"

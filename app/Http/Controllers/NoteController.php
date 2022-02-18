@@ -60,7 +60,7 @@ class NoteController extends Controller
             }
 
             $user = Auth::user();
-            if(!$user) {
+            if (!$user) {
                 throw new FundooNoteException("Invalid authorization token", 401);
             } else {
                 $note = new Note;
@@ -109,12 +109,16 @@ class NoteController extends Controller
                 throw new FundooNoteException("Invalid authorization token", 401);
             }
 
-            $notes = Cache::remember('notes', 864000, function() {
-                return Note::leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
-                    ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
-                    ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
-                    ->where('notes.user_id', Auth::user()->id)->get();
-            });
+            // $notes = Cache::remember('notes', 864000, function() {
+            //     return Note::leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
+            //         ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
+            //         ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
+            //         ->where('notes.user_id', Auth::user()->id)->get();
+            // });
+            $notes = Note::leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
+                ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
+                ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
+                ->where('notes.user_id', Auth::user()->id)->where('trash', 0)->get();
 
             if (!$notes) {
                 return response()->json([
@@ -124,6 +128,7 @@ class NoteController extends Controller
             }
 
             return response()->json([
+                'status' => 201,
                 'message' => 'Fetched Notes Successfully',
                 'Notes' => $notes
             ], 201);
@@ -203,7 +208,6 @@ class NoteController extends Controller
         } catch (FundooNoteException $exception) {
             $exception->message();
         }
-
     }
 
     /**
@@ -272,5 +276,112 @@ class NoteController extends Controller
             $exception->message();
         }
     }
+
+    public function trashNote(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            Log::channel('customLog')->error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::where('id', $request->id)->first();
+        if (!($notes->user_id == $user->id) || !$notes) {
+            Log::channel('customLog')->error('Notes Not Found', ['id' => $request->id]);
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        if ($notes->trash === 0) {
+            $notes->trash = 1;
+            $notes->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Note trash successfully'
+            ], 200);
+        }
+    }
+
+    public function untrashNote(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            Log::channel('customLog')->error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::where('id', $request->id)->first();
+        if (!($notes->user_id == $user->id) || !$notes) {
+            Log::channel('customLog')->error('Notes Not Found', ['id' => $request->id]);
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        if ($notes->trash == 1) {
+            $notes->trash = 0;
+            $notes->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Note restore successfully'
+            ], 200);
+        }
+    }
+
+    public function getTrashNote()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            Log::error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
+            ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
+            ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
+            ->where('notes.user_id', Auth::user()->id)->where('trash', 1)->get();
+
+        if (!$notes) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 201,
+            'message' => 'Fetched trash Notes Successfully',
+            'Notes' => $notes
+        ], 201);
+    }
 }
-?>

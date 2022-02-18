@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Http\Requests\SendEmailRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ForgotPasswordController extends Controller
 {
@@ -47,7 +48,9 @@ class ForgotPasswordController extends Controller
         ]);
 
         if($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'validation_error' => $validator->errors(),
+            ]);
         }
 
         $user = User::where('email', $request->email)->first();
@@ -117,7 +120,7 @@ class ForgotPasswordController extends Controller
             ],400);
         }
 
-        $passwordReset = Auth::user();
+        $passwordReset = JWTAuth::parseToken()->authenticate();
 
         if (!$passwordReset)
         {

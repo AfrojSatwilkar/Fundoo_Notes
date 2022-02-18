@@ -19,7 +19,6 @@ class CreateUsersTable extends Migration
             $table->string('lastname');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('verifytoken')->nullable();
             $table->enum('verifyemail',['active','inactive'])->default('inactive');
             $table->timestamps();
         });
