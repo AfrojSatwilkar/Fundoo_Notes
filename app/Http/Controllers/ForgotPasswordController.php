@@ -64,6 +64,7 @@ class ForgotPasswordController extends Controller
         }
 
         $token = Auth::fromUser($user);
+
         if ($user)
         {
             $sendEmail = new SendEmailRequest();

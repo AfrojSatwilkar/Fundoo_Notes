@@ -115,10 +115,11 @@ class NoteController extends Controller
             //         ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
             //         ->where('notes.user_id', Auth::user()->id)->get();
             // });
-            $notes = Note::leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
+            $notes = Note::leftJoin('collaborators', 'collaborators.note_id', '=', 'notes.id')
+                ->leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
                 ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
-                ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname')
-                ->where('notes.user_id', Auth::user()->id)->where('trash', 0)->get();
+                ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname', 'collaborators.email as Collaborator')
+                ->where('notes.user_id', Auth::user()->id)->orWhere('collaborators.email', '=', $user->email)->where('trash', 0)->get();
 
             if (!$notes) {
                 return response()->json([

@@ -32,5 +32,8 @@ Route::group(['middleware' => 'api'], function() {
     Route::delete('notelabel', [LabelController::class, 'deleteNoteLabel']);
 
     Route::post('addcolab', [CollaboratorController::class, 'addCollaboratorByNoteId']);
+    Route::post('updatecolab', [CollaboratorController::class, 'updateNoteByCollaborator']);
+    Route::post('deletecolab', [CollaboratorController::class, 'removeCollaborator']);
+
 
 });

@@ -129,8 +129,7 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        $creadintials = $request->only('email', 'password');
-        $validator = Validator::make($creadintials, [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
@@ -160,9 +159,7 @@ class UserController extends Controller
                 ],211);
             }
 
-            // $token = auth()->attempt($validator->validated());
-            // $id = $user->email;
-            $token = JWTAuth::attempt($creadintials);
+            $token = JWTAuth::fromUser($user);
             Log::channel('customLog')->info('Login Success : ' . 'Email Id :' . $request->email);
             return response()->json([
                 'status' => 201,

@@ -304,7 +304,6 @@ class LabelController extends Controller
         }
 
         $user = JWTAuth::parseToken()->authenticate();
-        $apy = JWTAuth::getPayload($user)->toArray();
 
         if ($user) {
             $labelnote = LabelNotes::where('note_id', $request->note_id)->where('label_id', $request->label_id)->first();
@@ -321,7 +320,6 @@ class LabelController extends Controller
             if ($user->label_notes()->save($labelnotes)) {
                 Cache::forget('notes');
                 return response()->json([
-                    'aa' => $apy,
                     'status' => 201,
                     'message' => 'Label note added Sucessfully',
                 ], 201);
