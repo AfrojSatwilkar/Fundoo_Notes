@@ -26,7 +26,6 @@ class AddTrashToNotesTable extends Migration
     public function down()
     {
         Schema::table('notes', function (Blueprint $table) {
-            //
             $table->dropColumn('trash');
         });
     }

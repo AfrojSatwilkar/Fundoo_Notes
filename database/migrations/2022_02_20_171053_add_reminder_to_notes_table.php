@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPinToNotesTable extends Migration
+class AddReminderToNotesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddPinToNotesTable extends Migration
     public function up()
     {
         Schema::table('notes', function (Blueprint $table) {
-            $table->boolean('pin')->default(0)->after('trash');
+            $table->timestamp('reminder')->nullable()->after('trash');
         });
     }
 
@@ -26,7 +26,7 @@ class AddPinToNotesTable extends Migration
     public function down()
     {
         Schema::table('notes', function (Blueprint $table) {
-            $table->dropColumn('pin');
+            $table->dropColumn('reminder');
         });
     }
 }

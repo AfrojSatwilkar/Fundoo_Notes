@@ -23,13 +23,17 @@ Route::group(['middleware' => 'api'], function() {
     Route::post('trashnote', [NoteController::class, 'trashNote']);
     Route::post('restorenote', [NoteController::class, 'untrashNote']);
     Route::get('gettrashnote', [NoteController::class, 'getTrashNote']);
+    Route::post('addreminder', [NoteController::class, 'addReminder']);
+    Route::get('getremindernote', [NoteController::class, 'getAllReminder']);
+    Route::post('editreminder', [NoteController::class, 'editReminder']);
+    Route::post('deletereminder', [NoteController::class, 'deleteReminder']);
 
     Route::post('label', [LabelController::class, 'createLabel']);
     Route::get('label', [LabelController::class, 'readAllLabel']);
     Route::post('updatelabel', [LabelController::class, 'updateLabel']);
     Route::post('deletelabel', [LabelController::class, 'deleteLabel']);
     Route::post('notelabel', [LabelController::class, 'addNoteLabel']);
-    Route::delete('notelabel', [LabelController::class, 'deleteNoteLabel']);
+    Route::post('deletenotelabel', [LabelController::class, 'deleteNoteLabel']);
 
     Route::post('addcolab', [CollaboratorController::class, 'addCollaboratorByNoteId']);
     Route::post('updatecolab', [CollaboratorController::class, 'updateNoteByCollaborator']);

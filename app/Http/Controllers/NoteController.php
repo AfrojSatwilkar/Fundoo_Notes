@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Note;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * @since 04-jan-2022
@@ -118,8 +119,8 @@ class NoteController extends Controller
             $notes = Note::leftJoin('collaborators', 'collaborators.note_id', '=', 'notes.id')
                 ->leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
                 ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
-                ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname', 'collaborators.email as Collaborator')
-                ->where('notes.user_id', Auth::user()->id)->orWhere('collaborators.email', '=', $user->email)->where('trash', 0)->get();
+                ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname', 'collaborators.email as Collaborator', 'notes.reminder')
+                ->where('notes.user_id', Auth::user()->id)->where('trash', 0)->orWhere('collaborators.email', '=', $user->email)->get();
 
             if (!$notes) {
                 return response()->json([
@@ -308,6 +309,7 @@ class NoteController extends Controller
 
         if ($notes->trash === 0) {
             $notes->trash = 1;
+            $notes->reminder = null;
             $notes->save();
 
             return response()->json([
@@ -384,5 +386,155 @@ class NoteController extends Controller
             'message' => 'Fetched trash Notes Successfully',
             'Notes' => $notes
         ], 201);
+    }
+
+    public function addReminder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+            'reminder' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            Log::error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::where('id', $request->id)->first();
+        if (!($notes->user_id == $user->id) || !$notes) {
+            Log::channel('customLog')->error('Notes Not Found', ['id' => $request->id]);
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        if ($notes->reminder == null) {
+
+            $notes->reminder = $request->reminder;
+            if ($notes->save())
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Reminder added successfully'
+                ], 200);
+        }
+    }
+
+    public function getAllReminder()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            Log::error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::leftJoin('collaborators', 'collaborators.note_id', '=', 'notes.id')
+            ->leftJoin('label_notes', 'label_notes.note_id', '=', 'notes.id')
+            ->leftJoin('labels', 'labels.id', '=', 'label_notes.label_id')
+            ->select('notes.id', 'notes.title', 'notes.description', 'labels.labelname', 'collaborators.email as Collaborator', 'notes.reminder')
+            ->where('notes.user_id', Auth::user()->id)->where('reminder', '!=', null)->orWhere('collaborators.email', '=', $user->email)->get();
+
+        if (!$notes) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 201,
+            'message' => 'Fetched reminder Notes Successfully',
+            'Notes' => $notes
+        ], 201);
+    }
+
+    public function editReminder(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            Log::error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::where('id', $request->id)->first();
+        if (!($notes->user_id == $user->id) || !$notes) {
+            Log::channel('customLog')->error('Notes Not Found', ['id' => $request->id]);
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        if($notes->reminder != null) {
+            $notes->reminder = $request->reminder;
+            $notes->save();
+            return response()->json([
+                'status' => 200,
+                'message' => "Note reminder successfully updated"
+            ], 200);
+        }
+
+
+
+    }
+
+    public function deleteReminder(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            Log::error('Invalid User');
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid authorization token'
+            ], 401);
+        }
+
+        $notes = Note::where('id', $request->id)->first();
+        if (!($notes->user_id == $user->id) || !$notes) {
+            Log::channel('customLog')->error('Notes Not Found', ['id' => $request->id]);
+            return response()->json([
+                'status' => 404,
+                'message' => 'Notes not found'
+            ], 404);
+        }
+
+        if($notes->reminder != null) {
+            $notes->reminder = null;
+            $notes->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Note reminder deleted successfully'
+            ], 200);
+
+        }
     }
 }
