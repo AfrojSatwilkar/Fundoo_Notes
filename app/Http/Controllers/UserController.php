@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
@@ -64,6 +65,13 @@ class UserController extends Controller
             'confirm_password' => 'required|same:password',
         ]);
 
+        $userArray = array(
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        );
+
         if ($validator->fails()) {
             return response()->json([
                 'validation_error' => $validator->errors(),
@@ -71,7 +79,8 @@ class UserController extends Controller
 
         }
 
-        $user = User::where('email', $request->email)->first();
+        $userObject = new User();
+        $user = $userObject->userEmailValidation($request->email);
         if ($user) {
             return response()->json([
                 'status' => 401,
@@ -79,12 +88,7 @@ class UserController extends Controller
             ], 401);
         }
 
-        $userDetail = User::create([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        $userDetail = $userObject->saveUserDetails($userArray);
 
         $token = Auth::fromUser($userDetail);
         if($userDetail) {
@@ -260,6 +264,37 @@ class UserController extends Controller
             return response()->json([
                 'message' => "Email Already verified"
             ],202);
+        }
+    }
+
+     /**
+     * This function will take image
+     * as input and save in AWS S3
+     * and will save link in database
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function addProfileImage(Request $request)
+    {
+        $request->validate([
+
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
+        ]);
+        $user = Auth::user();
+
+        $user = User::where('email', $user->email)->first();
+        if ($user) {
+            $imageName = time() . '.' . $request->image->extension();
+
+            $path = Storage::disk('s3')->put('images', $request->image);
+            $url = env('AWS_URL') . $path;
+            $temp = User::where('email', $user->email)
+                ->update(['profilepic' => $url]);
+            return response()->json(['message' => 'Profilepic Successsfully Added', 'URL' => $url], 201);
+
+        } else {
+            return response()->json(['message' => 'We cannot find a user'], 400);
         }
     }
 }

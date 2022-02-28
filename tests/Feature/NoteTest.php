@@ -117,4 +117,163 @@ class NoteTest extends TestCase
          ]);
          $response->assertStatus(404)->assertJson(['message' => 'Notes not Found']);
      }
+
+     /**
+     * @test
+     * for Successfull Pinned of note
+     * to given note Id
+     */
+    public function test_Successfull_Pinned_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/pinnote',
+            [
+                "id" => "3"
+            ]
+        );
+        $response->assertStatus(201)->assertJson(['message' => 'Note Pinned Sucessfully']);
+    }
+
+    /**
+     * @test
+     * for UnSuccessfull Pinned of note
+     * to given note Id
+     */
+    public function test_UnSuccessfull_Pinned_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/pinnote',
+            [
+                "id" => "7"
+            ]
+        );
+        $response->assertStatus(404)->assertJson(['message' => 'Notes not Found']);
+    }
+
+    /**
+     * @test
+     * for Successfull archived of note
+     * to given note Id
+     */
+    public function test_Successfull_Archived_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/archivenote',
+            [
+                "id" => "3"
+            ]
+        );
+        $response->assertStatus(201)->assertJson(['message' => 'Note Archived Sucessfully']);
+    }
+    /**
+     * @test
+     * for UnSuccessfull archived of note
+     * to given note Id
+     */
+    public function test_UnSuccessfull_Archived_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/archivenote',
+            [
+                "id" => "7"
+            ]
+        );
+        $response->assertStatus(404)->assertJson(['message' => 'Notes not Found']);
+    }
+
+    /**
+     * @test
+     * for Successfull Colour of note
+     * to given note Id
+     */
+    public function test_Successfull_Coloured_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/colournote',
+            [
+                "id" => "9",
+                "colour" => "blue",
+            ]
+        );
+        $response->assertStatus(201)->assertJson(['message' => 'Note coloured Sucessfully']);
+    }
+    /**
+     * @test
+     * for UnSuccessfull Colour of note
+     * to given note Id
+     */
+    public function test_UnSuccessfull_Coloured_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/colournote',
+            [
+                "id" => "8",
+                "colour" => "blue",
+            ]
+        );
+        $response->assertStatus(404)->assertJson(['message' => 'Notes not Found']);
+    }
+
+    /**
+     * @test
+     * for Successfull Search of note
+     * to given anything
+     */
+    public function test_Successfull_Search_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/searchnotes',
+            [
+                "search" => "p"
+            ]
+        );
+        $response->assertStatus(201)->assertJson(['message' => 'Fetched Notes Successfully']);
+    }
+    /**
+     * @test
+     * for UnSuccessfull Search of note
+     * to given anything
+     */
+    public function test_UnSuccessfull_Search_Note()
+    {
+        $response = $this->withHeaders([
+            'Content-Type' => 'Application/json',
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTY0MjU2NzMwMSwiZXhwIjoxNjQyNTcwOTAxLCJuYmYiOjE2NDI1NjczMDEsImp0aSI6IjZFZTFpS1FqZHd1NjIzR08iLCJzdWIiOjksInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.3tXavu4g9QVlS9byH215sMC3VjQZIbvpnjc2EgJvw9o'
+        ])->json(
+            'POST',
+            '/api/searchnotes',
+            [
+                "search" => "p"
+            ]
+        );
+        $response->assertStatus(403)->assertJson(['message' => 'Invalid authorization token']);
+    }
 }

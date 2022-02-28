@@ -19,14 +19,36 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class CollaboratorController extends Controller
 {
     /**
+     * @OA\Post(
+     *   path="/api/addcolab",
+     *   summary="Add Colaborator to specific Note ",
+     *   description=" Add Colaborator to specific Note ",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"email" , "note_id"},
+     *               @OA\Property(property="email", type="string"),
+     *               @OA\Property(property="note_id", type="integer"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Collaborator created Sucessfully"),
+     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     */
+    /**
      * This function takes User access token and checks if it is
      * authorised or not if so and takes note_id, email if those
      * parameters are valid it will successfully creates a
      * collaborator.
-     *
      * @return JsonResponse
      */
-
     public function addCollaboratorByNoteId(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -81,11 +103,35 @@ class CollaboratorController extends Controller
         return response()->json([ 'message' => 'Invalid authorization token'], 404);
     }
 
+     /**
+     * @OA\Post(
+     *   path="/api/updatecolab",
+     *   summary="Edit the note through Colaborator ",
+     *   description=" Edit the note through Colaborator",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"title" , "note_id" , "description"},
+     *               @OA\Property(property="note_id", type="integer"),
+     *               @OA\Property(property="title", type="string"),
+     *               @OA\Property(property="description", type="string"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Note updated Sucessfully"),
+     *   @OA\Response(response=404, description="Invalid authorization token"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     */
     /**
      * This function takes User access token of collaborator and
      * checks if it is authorised or not if so and takes note details
      * as parametres if those are valid updates the notes successfully.
-     *
      * @return JsonResponse
      */
     public function updateNoteByCollaborator(Request $request)
@@ -138,10 +184,33 @@ class CollaboratorController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *   path="/api/deletecolab",
+     *   summary="Remove Colaborator from specific Note ",
+     *   description=" Remove Colaborator from specific Note ",
+     *   @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"email" , "note_id"},
+     *               @OA\Property(property="email", type="string"),
+     *               @OA\Property(property="note_id", type="integer"),
+     *            ),
+     *        ),
+     *    ),
+     *   @OA\Response(response=201, description="Collaborator deleted Sucessfully"),
+     *   @OA\Response(response=404, description="Collaborater Not created"),
+     *   security = {
+     * {
+     * "Bearer" : {}}}
+     * )
+     */
+    /**
      * This function takes User access token and checks if it is
      * authorised or not if so and takes note_id and collabarator email
      * as parametres if those are valid deletes the notes successfully.
-     *
      * @return JsonResponse
      */
     public function removeCollaborator(Request $request)

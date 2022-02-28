@@ -20,17 +20,16 @@ class Note extends Model
         return ucfirst($value);
     }
 
-    // public function setReminderAttribute($value) {
-    //     $date = Carbon::createFromFormat('Y-m-d H:i:s', $value);
-    //     return $date->format('Y-m-d H:i:s');
-    // }
-
     public function getReminderAttribute($value) {
         if($value == null) {
             return $value;
         } else {
             return Carbon::createFromFormat('Y-m-d H:i:s', $value)->format('d-m h:i');
         }
+    }
+
+    public function noteId($id) {
+        return Note::where('id', $id)->first();
     }
 
     public function user()

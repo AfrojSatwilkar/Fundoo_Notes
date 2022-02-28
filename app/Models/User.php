@@ -43,7 +43,21 @@ class User extends Authenticatable implements JWTSubject
         return $this->attributes['lastname'] = ucfirst($value);
     }
 
-    /**
+    public function saveUserDetails($validator)
+    {
+        $user = User::create($validator);
+        return $user;
+    }
+
+
+    public function userEmailValidation($email)
+    {
+        $user = User::where('email', $email)->first();
+
+        return $user;
+    }
+
+     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
