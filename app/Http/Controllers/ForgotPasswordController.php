@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\FundooNoteException;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Http\Requests\SendEmailRequest;
+use App\Notifications\PasswordResetRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -43,38 +44,39 @@ class ForgotPasswordController extends Controller
      */
     public function forgotPassword(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:100',
-        ]);
-
-        if($validator->fails()) {
-            return response()->json([
-                'validation_error' => $validator->errors(),
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:100',
             ]);
-        }
 
-        $user = User::where('email', $request->email)->first();
+            if($validator->fails()) {
+                return response()->json([
+                    'validation_error' => $validator->errors(),
+                ]);
+            }
 
-        if (!$user)
-        {
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user)
+            {
+                throw new FundooNoteException("we can not find a user with that email address", 404);
+            }
+
+            $token = Auth::fromUser($user);
+
+            if ($user)
+            {
+                $delay = now()->addSeconds(5);
+                $user->notify((new PasswordResetRequest($user->email, $token))->delay($delay));
+            }
+
             return response()->json([
-                'status'=> 404,
-                'message' => 'we can not find a user with that email address'
-            ],404);
+                'status' => 200,
+                'message' => 'we have mailed your password reset link to respective E-mail'
+            ],200);
+        } catch (FundooNoteException $exception) {
+            return $exception->message();
         }
-
-        $token = Auth::fromUser($user);
-
-        if ($user)
-        {
-            $sendEmail = new SendEmailRequest();
-            $sendEmail->sendEmail($user,$token);
-        }
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'we have mailed your password reset link to respective E-mail'
-        ],200);
     }
 
     /**
@@ -108,47 +110,49 @@ class ForgotPasswordController extends Controller
      */
     public function resetPassword(Request $request)
     {
-        $validate = Validator::make($request->all(), [
-            'new_password' => 'min:6|required|',
-            'confirm_password' => 'required|same:new_password'
-        ]);
+        try {
+            $validate = Validator::make($request->all(), [
+                'new_password' => 'min:6|required|',
+                'confirm_password' => 'required|same:new_password'
+            ]);
 
-        if ($validate->fails())
-        {
-            return response()->json([
-                'status'=> 400,
-                'message' => "Password doesn't match"
-            ],400);
+            if ($validate->fails())
+            {
+                return response()->json([
+                    'status'=> 400,
+                    'message' => "Password doesn't match"
+                ],400);
+            }
+
+            $passwordReset = JWTAuth::parseToken()->authenticate();
+
+            if (!$passwordReset)
+            {
+                throw new FundooNoteException("This token is invalid", 401);
+            }
+
+            $user = User::where('email', $passwordReset->email)->first();
+
+            if (!$user)
+            {
+                return response()->json([
+                    'status' => 400,
+                    'message' => "we can't find the user with that e-mail address"
+                ], 400);
+            }
+            else
+            {
+                $user->password = bcrypt($request->new_password);
+                $user->save();
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Password reset successfull!'
+                ],200);
+            }
+        } catch (FundooNoteException $exception) {
+            return $exception->message();
         }
 
-        $passwordReset = JWTAuth::parseToken()->authenticate();
-
-        if (!$passwordReset)
-        {
-            return response()->json([
-                'status'=> 401,
-                'message' => 'This token is invalid'
-            ],401);
-        }
-
-        $user = User::where('email', $passwordReset->email)->first();
-
-        if (!$user)
-        {
-            return response()->json([
-                'status' => 400,
-                'message' => "we can't find the user with that e-mail address"
-            ], 400);
-        }
-        else
-        {
-            $user->password = bcrypt($request->new_password);
-            $user->save();
-            return response()->json([
-                'status' => 200,
-                'message' => 'Password reset successfull!'
-            ],200);
-        }
     }
 }
 ?>

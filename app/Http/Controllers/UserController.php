@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SendEmailRequest;
+use App\Jobs\VerificationMailjob;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Notifications\VerificationMail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -76,7 +79,6 @@ class UserController extends Controller
             return response()->json([
                 'validation_error' => $validator->errors(),
             ]);
-
         }
 
         $userObject = new User();
@@ -92,8 +94,8 @@ class UserController extends Controller
 
         $token = Auth::fromUser($userDetail);
         if($userDetail) {
-            $sendEmail = new SendEmailRequest();
-            $sendEmail->sendVerifyEmail($userDetail,$token);
+            $delay = now()->addSeconds(5);
+            $userDetail->notify((new VerificationMail($userDetail->email, $token))->delay($delay));
         }
 
         Log::channel('customLog')->info('Registered user Email : ' . 'Email Id :' . $request->email);
@@ -292,7 +294,43 @@ class UserController extends Controller
             $temp = User::where('email', $user->email)
                 ->update(['profilepic' => $url]);
             return response()->json(['message' => 'Profilepic Successsfully Added', 'URL' => $url], 201);
+        } else {
+            return response()->json(['message' => 'We cannot find a user'], 400);
+        }
+    }
 
+    /**
+     * This function will take image
+     * as input and save in AWS S3
+     * and will save link in database
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function updateProfileImage(Request $request)
+    {
+        $request->validate([
+
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
+        ]);
+        $user = Auth::user();
+
+        $user = User::where('email', $user->email)->first();
+        if ($user) {
+            $imageName = time() . '.' . $request->image->extension();
+            $profile_pic = $user->profilepic;
+            // $path = str_replace(env('AWS_URL'), '', $user->profilepic);
+            // if(Storage::disc('s3')->exists($path)){
+            //     Storage::disk('s3')->delete($path);
+            // }
+
+            $path = Storage::disk('s3')->put('images', $request->image);
+            $url = env('AWS_URL') . $path;
+            $temp = User::where('email', $user->email)
+                ->update(['profilepic' => $url]);
+            return response()->json([
+                'piv' => $profile_pic,
+                'message' => 'Profilepic Successsfully update', 'URL' => $url], 201);
         } else {
             return response()->json(['message' => 'We cannot find a user'], 400);
         }

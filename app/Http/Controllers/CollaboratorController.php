@@ -6,6 +6,7 @@ use App\Http\Requests\SendEmailRequest;
 use App\Models\Collaborator;
 use App\Models\Note;
 use App\Models\User;
+use App\Notifications\EmailToCollab;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -87,8 +88,9 @@ class CollaboratorController extends Controller
                     $collaborator = Note::select('id','title','description')->where([['id','=',$request->note_id]])->get();
                     if($currentUser->collaborators()->save($collab))
                     {
-                        $sendEmail = new SendEmailRequest();
-                        $sendEmail->sendEmailToCollab($request->email,$collaborator,$currentUser->email);
+                        $delay = now()->addSeconds(60);
+                        $user->notify((new EmailToCollab($request->email, $collaborator))->delay($delay));
+
                         return response()->json([
                             'status' => 201,
                             'message' => 'Collaborator created Sucessfully'

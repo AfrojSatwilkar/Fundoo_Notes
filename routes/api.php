@@ -13,6 +13,7 @@ Route::group(['middleware' => 'api'], function() {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('addprofilepic', [UserController::class, 'addProfileImage']);
+    Route::post('updateprofilepic', [UserController::class, 'updateProfileImage']);
 
     Route::post('forgotpassword', [ForgotPasswordController::class, 'forgotPassword']);
     Route::post('resetpassword', [ForgotPasswordController::class, 'resetPassword']);
