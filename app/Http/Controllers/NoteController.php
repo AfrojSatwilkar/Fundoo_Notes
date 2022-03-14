@@ -124,10 +124,12 @@ class NoteController extends Controller
                 throw new FundooNoteException("Notes not found", 404);
             }
 
+            $paginate = $notes->paginate(3);
+
             return response()->json([
                 'status' => 201,
                 'message' => 'Fetched Notes Successfully',
-                'Notes' => $notes
+                'Notes' => $paginate
             ], 201);
         } catch (FundooNoteException $exception) {
             return $exception->message();
